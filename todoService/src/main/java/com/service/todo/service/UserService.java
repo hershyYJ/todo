@@ -3,6 +3,7 @@ package com.service.todo.service;
 import com.service.todo.model.UserEntity;
 import com.service.todo.persistence.UserRepository;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
 @Service
@@ -22,8 +23,12 @@ public class UserService {
         return userRepository.save(userEntity);
     }
 
-    public UserEntity getByCredentials(final String email, final String password) {
-        return userRepository.findByEmailAndPassword(email, password);
+    public UserEntity getByCredentials(final String email, final String password, final PasswordEncoder encoder) {
+        final UserEntity originalUser = userRepository.findByEmail(email);
+        if(originalUser != null && encoder.matches(password, originalUser.getPassword()))
+            return originalUser;
+
+        return null;
     }
 
 }
