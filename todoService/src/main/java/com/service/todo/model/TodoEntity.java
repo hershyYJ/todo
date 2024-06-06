@@ -1,14 +1,14 @@
 package com.service.todo.model;
 
-import jakarta.persistence.Entity;
-import jakarta.persistence.GeneratedValue;
-import jakarta.persistence.Id;
-import jakarta.persistence.Table;
+import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+import org.hibernate.annotations.CreationTimestamp;
 import org.hibernate.annotations.GenericGenerator;
+
+import java.time.LocalDateTime;
 
 @Builder
 @NoArgsConstructor
@@ -23,10 +23,20 @@ public class TodoEntity {
     @GenericGenerator(name = "system-uuid", strategy = "uuid")
     private String id;
 
-    private String userId;
-
     private String title;
 
-    private boolean done;
+    private String content;
+
+    private Boolean done;
+
+    private int priority;
+
+    @CreationTimestamp
+    private LocalDateTime createdAt;
+
+    private LocalDateTime deadline;
+
+    @ManyToOne(fetch = FetchType.LAZY)
+    private UserEntity user;
 
 }

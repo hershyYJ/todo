@@ -5,6 +5,7 @@ import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+import org.apache.catalina.User;
 import org.hibernate.annotations.GenericGenerator;
 
 @Data
@@ -27,5 +28,15 @@ public class UserEntity {
 
     @Column(nullable=false)
     private String password;
+
+    public static UserEntity joinUser(String email, String encodedPassword, String username) {
+        UserEntity user = new UserEntity();
+        user.email = email;
+        user.password = encodedPassword;
+        user.username = username;
+
+        return user;
+    }
+
 
 }

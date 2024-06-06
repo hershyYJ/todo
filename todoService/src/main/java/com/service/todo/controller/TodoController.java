@@ -2,8 +2,13 @@ package com.service.todo.controller;
 
 import com.service.todo.dto.ResponseDTO;
 import com.service.todo.dto.TodoDTO;
+import com.service.todo.dto.TodoModificationReq;
 import com.service.todo.model.TodoEntity;
+import com.service.todo.security.JwtAuthenticationFilter;
 import com.service.todo.service.TodoService;
+import io.swagger.v3.oas.annotations.Operation;
+import jakarta.servlet.http.HttpServletRequest;
+import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
@@ -15,80 +20,57 @@ import java.util.stream.Collectors;
 
 @Slf4j
 @RestController
+@RequiredArgsConstructor
 @RequestMapping("/todo")
 public class TodoController {
 
-    @Autowired
-    private TodoService service;
+    private final JwtAuthenticationFilter jwtAuthenticationFilter;
+    private final TodoService todoService;
 
     @PostMapping
-    public ResponseEntity<?> createTodo(@AuthenticationPrincipal String userId, @RequestBody TodoDTO dto) {
-        try {
-            TodoEntity entity = TodoDTO.toEntity(dto);
-            entity.setId(null);
-            entity.setUserId(userId);
+    @Operation(summary = "Todo 생성 API")
+    public ResponseEntity<String> createTodo(HttpServletRequest request, @RequestBody TodoDTO todoDTO) {
+        String accessToken = jwtAuthenticationFilter.parseBearerToken(request);
 
-            List<TodoEntity> entities = service.create(entity);
-            List<TodoDTO> dtos = entities.stream().map(TodoDTO::new).collect(Collectors.toList());
-            log.info("Log:entities => dtos ok!");
+        return ResponseEntity.ok(todoService.createTodo(accessToken, todoDTO));
+    }
 
-            ResponseDTO<TodoDTO> response = ResponseDTO.<TodoDTO>builder().data(dtos).build();
-            log.info("Log:responsedto ok!");
+    @PatchMapping
+    @Operation(summary = "Todo 수정 API")
+    public ResponseEntity<String> modifyTodo(HttpServletRequest request, @RequestBody TodoModificationReq todo) {
+        String accessToken = jwtAuthenticationFilter.parseBearerToken(request);
 
-            return ResponseEntity.ok().body(response);
-        } catch (Exception e) {
-            String error = e.getMessage();
-            ResponseDTO<TodoDTO> response = ResponseDTO.<TodoDTO>builder().error(error).build();
-            return ResponseEntity.badRequest().body(response);
-        }
+        return ResponseEntity.ok(todoService.modifyTodo(accessToken, todo));
     }
 
     @GetMapping
-    public ResponseEntity<?> retrieveTodo(@AuthenticationPrincipal String userId) {
+    @Operation(summary = "Todo 조회 API")
+    public ResponseEntity<List<TodoDTO>> getAllTodos(HttpServletRequest request) {
+        String accessToken = jwtAuthenticationFilter.parseBearerToken(request);
 
-        List<TodoEntity> entities = service.retrieve(userId);
-        List<TodoDTO> dtos = entities.stream().map(TodoDTO::new).collect(Collectors.toList());
-        ResponseDTO<TodoDTO> response = ResponseDTO.<TodoDTO>builder().data(dtos).build();
-
-        return ResponseEntity.ok().body(response);
-    }
-
-    @PutMapping
-    public ResponseEntity<?> updateTodo(@AuthenticationPrincipal String userId, @RequestBody TodoDTO dto) {
-        try {
-            TodoEntity entity = TodoDTO.toEntity(dto);
-            entity.setUserId("temporary-user");
-
-            List<TodoEntity> entities = service.update(entity);
-            List<TodoDTO> dtos = entities.stream().map(TodoDTO::new).collect(Collectors.toList());
-            ResponseDTO<TodoDTO> response = ResponseDTO.<TodoDTO>builder().data(dtos).build();
-
-            return ResponseEntity.ok().body(response);
-        } catch (Exception e) {
-            String error = e.getMessage();
-            ResponseDTO<TodoDTO> response = ResponseDTO.<TodoDTO>builder().error(error).build();
-
-            return ResponseEntity.badRequest().body(response);
-        }
+        return ResponseEntity.ok(todoService.getAllTodos(accessToken));
     }
 
     @DeleteMapping
-    public ResponseEntity<?> delete(@AuthenticationPrincipal String userId, @RequestBody TodoDTO dto) {
-        try {
-            TodoEntity entity = TodoDTO.toEntity(dto);
-            entity.setUserId(userId);
+    @Operation(summary = "Todo 삭제 API")
+    public ResponseEntity<String> deleteTodo(HttpServletRequest request, @RequestParam String todoId) {
+        String accessToken = jwtAuthenticationFilter.parseBearerToken(request);
 
-            List<TodoEntity> entities = service.delete(entity);
-            List<TodoDTO> dtos = entities.stream().map(TodoDTO::new).collect(Collectors.toList());
-            ResponseDTO<TodoDTO> response = ResponseDTO.<TodoDTO>builder().data(dtos).build();
+        return ResponseEntity.ok(todoService.deleteTodo(accessToken, todoId));
+    }
 
-            return ResponseEntity.ok().body(response);
-        } catch (Exception e) {
-            String error = e.getMessage();
-            ResponseDTO<TodoDTO> response = ResponseDTO.<TodoDTO>builder().error(error).build();
+    @GetMapping("/priority")
+    @Operation(summary = "Todo 우선순위 정렬 API")
+    public ResponseEntity<List<TodoEntity>> filterByPriority(HttpServletRequest request) {
+        String accessToken = jwtAuthenticationFilter.parseBearerToken(request);
+        return ResponseEntity.ok(todoService.filterByPriority(accessToken));
+    }
 
-            return ResponseEntity.badRequest().body(response);
-        }
+    @GetMapping("/deadline")
+    @Operation(summary = "Todo 마감 기한 정렬 API")
+    public ResponseEntity<List<TodoEntity>> filterByDeadline(HttpServletRequest request) {
+        String accessToken = jwtAuthenticationFilter.parseBearerToken(request);
+        return ResponseEntity.ok(todoService.filterByDeadline(accessToken));
     }
 
 }

@@ -3,6 +3,7 @@ package com.service.todo.security;
 import java.io.IOException;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpHeaders;
 import org.springframework.security.authentication.AbstractAuthenticationToken;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.authority.AuthorityUtils;
@@ -53,12 +54,17 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter{
         filterChain.doFilter(request, response);
     }
 
-    private String parseBearerToken(HttpServletRequest request){
-        String bearerToken = request.getHeader("Authorization");
+    public String parseBearerToken(HttpServletRequest request){
+        String token = request.getHeader(HttpHeaders.AUTHORIZATION);
 
-        if(StringUtils.hasText(bearerToken)&& bearerToken.startsWith("Bearer")){
-            return bearerToken.substring(7);
+        if(StringUtils.hasText(token)) {
+            if(token.startsWith("Bearer ")) {
+                return token.substring(7);
+            } else {
+                return token;
+            }
         }
+
         return null;
     }
 }

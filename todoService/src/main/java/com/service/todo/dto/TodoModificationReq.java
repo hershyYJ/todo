@@ -1,6 +1,5 @@
 package com.service.todo.dto;
 
-import com.service.todo.model.TodoEntity;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
@@ -12,7 +11,9 @@ import java.time.LocalDateTime;
 @NoArgsConstructor
 @AllArgsConstructor
 @Data
-public class TodoDTO {
+public class TodoModificationReq {
+
+    private String todoId;
 
     private String title;
 
