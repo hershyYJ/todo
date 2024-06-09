@@ -14,6 +14,8 @@ import java.time.LocalDateTime;
 @Data
 public class TodoDTO {
 
+    private String id;
+
     private String title;
 
     private String content;
