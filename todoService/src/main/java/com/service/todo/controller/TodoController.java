@@ -10,13 +10,10 @@ import io.swagger.v3.oas.annotations.Operation;
 import jakarta.servlet.http.HttpServletRequest;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
-import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
-import java.util.stream.Collectors;
 
 @Slf4j
 @RestController
@@ -29,10 +26,12 @@ public class TodoController {
 
     @PostMapping
     @Operation(summary = "Todo 생성 API")
-    public ResponseEntity<String> createTodo(HttpServletRequest request, @RequestBody TodoDTO todoDTO) {
+    public ResponseEntity<ResponseDTO> createTodo(HttpServletRequest request, @RequestBody TodoDTO todoDTO) {
         String accessToken = jwtAuthenticationFilter.parseBearerToken(request);
-
-        return ResponseEntity.ok(todoService.createTodo(accessToken, todoDTO));
+        ResponseDTO<TodoDTO> responseDTO = ResponseDTO.<TodoDTO>builder()
+                .data(todoService.createTodo(accessToken, todoDTO))
+                .build();
+        return ResponseEntity.ok(responseDTO);
     }
 
     @PatchMapping
@@ -45,18 +44,20 @@ public class TodoController {
 
     @GetMapping
     @Operation(summary = "Todo 조회 API")
-    public ResponseEntity<List<TodoDTO>> getAllTodos(HttpServletRequest request) {
+    public ResponseEntity<ResponseDTO> getAllTodos(HttpServletRequest request) {
         String accessToken = jwtAuthenticationFilter.parseBearerToken(request);
-
-        return ResponseEntity.ok(todoService.getAllTodos(accessToken));
+        ResponseDTO<List<TodoDTO>> responseDTO = ResponseDTO.<List<TodoDTO>>builder()
+                .data(todoService.getAllTodos(accessToken))
+                .build();
+        return ResponseEntity.ok(responseDTO);
     }
 
     @DeleteMapping
     @Operation(summary = "Todo 삭제 API")
-    public ResponseEntity<String> deleteTodo(HttpServletRequest request, @RequestParam String todoId) {
+    public ResponseEntity<ResponseDTO> deleteTodo(HttpServletRequest request, @RequestParam String todoId) {
         String accessToken = jwtAuthenticationFilter.parseBearerToken(request);
-
-        return ResponseEntity.ok(todoService.deleteTodo(accessToken, todoId));
+        ResponseDTO responseDTO = ResponseDTO.builder().data(todoService.deleteTodo(accessToken, todoId)).build();
+        return ResponseEntity.ok(responseDTO);
     }
 
     @GetMapping("/priority")

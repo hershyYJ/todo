@@ -27,7 +27,7 @@ public class TodoService {
     private final TokenProvider tokenProvider;
 
     @Transactional
-    public String createTodo(String accessToken, TodoDTO todoDTO) {
+    public TodoDTO createTodo(String accessToken, TodoDTO todoDTO) {
         String userId = tokenProvider.validateAndGetUserId(accessToken);
 
         UserEntity user = userRepository.findById(userId)
@@ -44,7 +44,7 @@ public class TodoService {
 
         todoRepository.save(todo);
 
-        return "Creation Success";
+        return convertToDto(todo);
     }
 
     @Transactional
@@ -141,6 +141,7 @@ public class TodoService {
 
     private TodoDTO convertToDto(TodoEntity todoEntity) {
         TodoDTO todoDTO = new TodoDTO();
+        todoDTO.setId(todoEntity.getId());
         todoDTO.setTitle(todoEntity.getTitle());
         todoDTO.setContent(todoEntity.getContent());
         todoDTO.setDone(todoEntity.getDone());
