@@ -63,7 +63,7 @@ public class WebSecurityConfig {
                                 new AntPathRequestMatcher("/swagger-ui/**"),
                                 new AntPathRequestMatcher("/v3/api-docs/**"))
                         .permitAll()
-                        .requestMatchers(new AntPathRequestMatcher("/todo/**"))
+                        .requestMatchers("/todo/**", "/notify")
                         .authenticated();
             } catch (Exception e) {
                 e.printStackTrace();
