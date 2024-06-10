@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useEffect, useState } from "react";
 import Todo from "./Todo";
 import AddTodo from "./AddTodo";
 import {
@@ -25,48 +25,90 @@ class App extends React.Component {
   }
 
   add = (item) => {
-    call("/todo", "POST", item).then((response) =>
+    call("/todo", "POST", item).then((response) => {
+      console.log(response);
       this.setState({
-        items: [...this.state.items, response.data], // 새롭게 생성된 TodoDTO를 현재 상태의 items에 추가
-      })
-    );
-  };
+        items: [...this.state.items, response], // 새롭게 생성된 TodoDTO를 현재 상태의 items에 추가
+      });
+    });
+};
 
-  delete = (item) => {
-    call(`/todo?todoId=${item.id}`, "DELETE", null).then((response) =>
-      this.setState({
-        items: this.state.items.filter((todo) => todo.id !== item.id), // 현자 상태의 items에서 삭제한 item을 제거
-      })
-    );
-  };
+delete = (todoId) => {
+  call(`/todo?todoId=${todoId}`, "DELETE", null).then((response) => {
+    console.log("DELETE response:", response); 
+    this.setState({
+      items: this.state.items.filter((todo) => todo.todoId !== todoId),
+    });
+  });
+};
+
+
 
   update = (item) => {
-    call("/todo", "PUT", item).then((response) =>
-      this.setState({ items: response.data })
+    const todoModificationReq = {
+      todoId: item.todoId,
+      title: item.title,
+      content: item.content, 
+      done: item.done,
+      priority: item.priority, 
+      deadline: item.deadline,
+    };
+  
+    call("/todo", "PATCH", todoModificationReq).then((response) =>
+      this.setState({ items: response })
+    );
+  };
+
+  filterByPriority = () => {
+    call("/todo/priority", "GET", null).then((response) =>
+      this.setState({
+        items: response,
+      })
+    );
+  };
+
+  filterByDeadline = () => {
+    call("/todo/deadline", "GET", null).then((response) =>
+      this.setState({
+        items: response,
+      })
     );
   };
 
   componentDidMount() {
-    console.log("Hello");
     call("/todo", "GET", null).then((response) => {
       console.log(response);
-      this.setState({ items: response.data, loading: false });
+      this.setState({ items: response, loading: false }, () => {
+      });
     });
+    console.log("State updated:", this.state);
   }
 
   render() {
-    var todoItems = this.state.items.length > 0 && (
+    const { items, loading } = this.state;
+
+    const todoItems = (items && items.length > 0) ? (
       <Paper style={{ margin: 16 }}>
+        <Button color="inherit" onClick={this.filterByPriority}>
+          우선순위별 정렬
+        </Button>
+        <Button color="inherit" onClick={this.filterByDeadline}>
+          마감 기한별 정렬
+        </Button>
         <List>
-          {this.state.items.map((item, idx) => (
+          {items.map((item, idx) => (
             <Todo
               item={item}
-              key={item.id}
-              delete={this.delete}
+              key={item.todoId}
+              deleteTodo={this.delete}
               update={this.update}
             />
           ))}
         </List>
+      </Paper>
+    ) : (
+      <Paper style={{ padding: 16, marginBottom: 16 }}>
+        <p>아직 등록된 Todo가 없습니다.</p>
       </Paper>
     );
 
@@ -74,11 +116,11 @@ class App extends React.Component {
     var navigationBar = (
       <AppBar position="static">
         <Toolbar>
-          <Grid justify="space-between" container>
-            <Grid item>
-              <Typography variant="h6">오늘의 할일</Typography>
-            </Grid>
+        <Grid container justifyContent="space-between">
+          <Grid item>
+            <Typography variant="h6">오늘의 할일</Typography>
           </Grid>
+        </Grid>
           <Grid item>
             <Button color="inherit" onClick={signout}>
               logout
@@ -110,4 +152,5 @@ class App extends React.Component {
     return <div className="App">{content}</div>;
   }
 }
+
 export default App;
