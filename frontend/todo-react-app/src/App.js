@@ -42,8 +42,6 @@ delete = (todoId) => {
   });
 };
 
-
-
   update = (item) => {
     const todoModificationReq = {
       todoId: item.todoId,

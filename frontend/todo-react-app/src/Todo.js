@@ -54,30 +54,34 @@ class Todo extends React.Component {
       <ListItem>
         <Checkbox
           checked={item.done}
-          onChange={this.checkboxEventHandler}
+          onChange={this.checkboxEventHandler}            
           disabled={readOnly}
         />
         <ListItemText>
-          <label htmlFor={`${item.todoId}-title`}>제목:</label>
-          <InputBase
-            inputProps={{
+          <div style={{ display: 'inline-flex', alignItems: 'center' }}>
+            <label htmlFor={`${item.todoId}-title`}>제목:</label>
+            <InputBase
+              inputProps={{
               "aria-label": "title",
-              readOnly: readOnly,
-            }}
-            type="text"
-            id={`${item.todoId}-title`}
-            name="title"
-            value={item.title}
-            fullWidth={true}
-            multiline={false}
-            onClick={this.offReadOnlyMode}
-            onChange={this.editEventHandler}
-            onKeyDown={this.enterKeyEventHandler}
-          />
+                readOnly: readOnly,
+              }}
+              type="text"
+              id={`${item.todoId}-title`}
+              name="title"
+              value={item.title}
+              fullWidth={false} 
+              multiline={false}
+              onClick={this.offReadOnlyMode}
+              onChange={this.editEventHandler}
+              onKeyDown={this.enterKeyEventHandler}
+              style={{ marginLeft: '8px' }} 
+            />
+          </div>
 
-          <label htmlFor={`${item.todoId}-content`}>내용:</label>
-          <InputBase
-            inputProps={{
+          <div style={{ display: 'inline-flex', alignItems: 'center' }}>
+            <label htmlFor={`${item.todoId}-content`}>내용:</label>
+            <InputBase
+              inputProps={{
               "aria-label": "content",
               readOnly: readOnly,
             }}
@@ -85,46 +89,64 @@ class Todo extends React.Component {
             id={`${item.todoId}-content`}
             name="content"
             value={item.content}
-            fullWidth={true}
+            fullWidth={false} 
             multiline={false}
             onClick={this.offReadOnlyMode}
             onChange={this.editEventHandler}
             onKeyDown={this.enterKeyEventHandler}
-          />
+            style={{ marginLeft: '8px' }} 
+            />
+          </div>
 
-          <label htmlFor={`${item.todoId}-priority`}>우선 순위:</label>
-          <InputBase
-            inputProps={{
-              "aria-label": "priority",
-              readOnly: readOnly,
-            }}
-            type="number"
-            id={`${item.todoId}-priority`}
-            name="priority"
-            value={item.priority}
-            fullWidth={true}
-            multiline={false}
-            onClick={this.offReadOnlyMode}
-            onChange={this.editEventHandler}
-            onKeyDown={this.enterKeyEventHandler}
-          />
+          <div style={{ display: 'inline-flex', alignItems: 'center' }}>
+            <label htmlFor={`${item.todoId}-priority`}>우선 순위:</label>
+            <InputBase
+              inputProps={{
+                "aria-label": "priority",
+                readOnly: readOnly,
+              }}
+              type="number"
+              id={`${item.todoId}-priority`}
+              name="priority"
+              value={item.priority}
+              fullWidth={false} 
+              multiline={false}
+              onClick={this.offReadOnlyMode}
+              onChange={this.editEventHandler}
+              onKeyDown={this.enterKeyEventHandler}
+              style={{ marginLeft: '8px' }} 
+            />
+          </div>
 
-          <label htmlFor={`${item.todoId}-deadline`}>마감 시간:</label>
-          <InputBase
-            inputProps={{
-              "aria-label": "deadline",
-              readOnly: readOnly,
-            }}
-            type="datetime-local"
-            id={`${item.todoId}-deadline`}
-            name="deadline"
-            value={item.deadline}
-            fullWidth={true}
-            multiline={false}
-            onClick={this.offReadOnlyMode}
-            onChange={this.editEventHandler}
-            onKeyDown={this.enterKeyEventHandler}
-          />
+          <div style={{ display: 'inline-flex', alignItems: 'center' }}>
+            <label htmlFor={`${item.todoId}-deadline`}>마감 시간:</label>
+            <InputBase
+              inputProps={{
+                "aria-label": "deadline",
+                readOnly: readOnly,
+              }}
+              type="datetime-local"
+              id={`${item.todoId}-deadline`}
+              name="deadline"
+              value={item.deadline}
+              fullWidth={false} 
+              multiline={false}
+              onClick={this.offReadOnlyMode}
+              onChange={this.editEventHandler}
+              onKeyDown={this.enterKeyEventHandler}
+              style={{ marginLeft: '8px' }} 
+            />
+          </div>
+
+          <div style={{ display: 'inline-flex', alignItems: 'center' }}>
+            <label htmlFor={`${item.todoId}-done`}>완료 여부:</label>
+            <Checkbox
+              checked={item.done}
+              onChange={this.checkboxEventHandler}
+              name="done"
+              style={{ marginLeft: '8px' }} 
+            />
+          </div>
         </ListItemText>
 
         <ListItemSecondaryAction>
@@ -136,5 +158,5 @@ class Todo extends React.Component {
     );
   }
 }
-
+  
 export default Todo;
