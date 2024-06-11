@@ -103,6 +103,7 @@ public class WebSecurityConfig {
         config.addAllowedHeader("*");
         config.addAllowedMethod("GET");
         config.addAllowedMethod("POST");
+        config.addAllowedMethod("PATCH");
         config.addAllowedMethod("PUT");
         config.addAllowedMethod("DELETE");
         config.addAllowedMethod("OPTIONS");
