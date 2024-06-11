@@ -16,6 +16,7 @@ import org.springframework.stereotype.Service;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
+import java.util.Set;
 
 @Slf4j
 @Service
@@ -27,7 +28,7 @@ public class TodoService {
     private final TokenProvider tokenProvider;
 
     @Transactional
-    public TodoDTO createTodo(String accessToken, TodoDTO todoDTO) {
+    public TodoEntity createTodo(String accessToken, TodoDTO todoDTO) {
         String userId = tokenProvider.validateAndGetUserId(accessToken);
 
         UserEntity user = userRepository.findById(userId)
@@ -44,17 +45,21 @@ public class TodoService {
 
         todoRepository.save(todo);
 
-        return convertToDto(todo);
+        log.info("todo: {}", todo);
+
+        return todo;
     }
 
     @Transactional
     public String modifyTodo(String accessToken, TodoModificationReq request) {
+        log.info("todoId: {}", request.getTodoId());
+
         String userId = tokenProvider.validateAndGetUserId(accessToken);
 
         UserEntity user = userRepository.findById(userId)
                 .orElseThrow(() -> new RuntimeException("Not found User"));
 
-        TodoEntity todo = todoRepository.findById(request.getTodoId())
+        TodoEntity todo = todoRepository.findByTodoId(request.getTodoId())
                 .orElseThrow(() -> new RuntimeException("Not found Todo"));
 
         int priority = request.getPriority();
@@ -92,9 +97,8 @@ public class TodoService {
         UserEntity user = userRepository.findById(userId)
                 .orElseThrow(() -> new RuntimeException("Not found User"));
 
-        TodoEntity todo = todoRepository.findById(todoId)
+        TodoEntity todo = todoRepository.findByTodoId(todoId)
                 .orElseThrow(() -> new RuntimeException("Not found Todo"));
-
         if(user.getId() != todo.getUser().getId()) {
             throw new RuntimeException("You can only modify todo authored by yourself.");
         } else {
@@ -105,49 +109,34 @@ public class TodoService {
     }
 
     @Transactional
-    public List<TodoDTO> getAllTodos(String accessToken) {
+    public List<TodoEntity> getAllTodos(String accessToken) {
         String userId = tokenProvider.validateAndGetUserId(accessToken);
 
         UserEntity user = userRepository.findById(userId)
                 .orElseThrow(() -> new RuntimeException("Not found User"));
 
-        List<TodoEntity> todoEntities = todoRepository.findByUser(user);
-        List<TodoDTO> todoDTOs = new ArrayList<>();
-
-        for (TodoEntity todoEntity : todoEntities) {
-            todoDTOs.add(convertToDto(todoEntity));
-        }
-
-        return todoDTOs;
+        return todoRepository.findByUser(user);
     }
 
-    public List<TodoEntity> filterByPriority(String accessToken) {
+    @Transactional
+    public Set<TodoEntity> filterByPriority(String accessToken) {
         String userId = tokenProvider.validateAndGetUserId(accessToken);
 
         UserEntity user = userRepository.findById(userId)
                 .orElseThrow(() -> new RuntimeException("Not found User"));
 
-        return todoRepository.findByUserIdOrderByPriorityAsc(user.getId());
+        return todoRepository.findByUserOrderByPriorityAsc(user);
     }
 
+    @Transactional
     public List<TodoEntity> filterByDeadline(String accessToken) {
         String userId = tokenProvider.validateAndGetUserId(accessToken);
 
         UserEntity user = userRepository.findById(userId)
                 .orElseThrow(() -> new RuntimeException("Not found User"));
 
-        return todoRepository.findByUserIdOrderByDeadlineAsc(user.getId());
+        return todoRepository.findByUserOrderByDeadlineAsc(user);
     }
 
-    private TodoDTO convertToDto(TodoEntity todoEntity) {
-        TodoDTO todoDTO = new TodoDTO();
-        todoDTO.setId(todoEntity.getId());
-        todoDTO.setTitle(todoEntity.getTitle());
-        todoDTO.setContent(todoEntity.getContent());
-        todoDTO.setDone(todoEntity.getDone());
-        todoDTO.setPriority(todoEntity.getPriority());
-        todoDTO.setDeadline(todoEntity.getDeadline());
-        return todoDTO;
-    }
 
 }
