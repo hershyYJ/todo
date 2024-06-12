@@ -28,18 +28,15 @@ public class AlertService {
     @Scheduled(cron = "0 * * * * *")
     public void checkTodos() {
         List<TodoAlertDTO> todoAlertDTOs = findTodosDueInNextHour();
-        if (!todoAlertDTOs.isEmpty()) {
-            log.info("Found {} todos due in the next hour", todoAlertDTOs.size());
 
-            synchronized (emitters) {
-                for (SseEmitter emitter : emitters) {
-                    try {
-                        emitter.send(SseEmitter.event().name("알림").data(todoAlertDTOs));
-                    } catch (IOException e) {
-                        log.error("Error sending SSE event", e);
-                        emitter.completeWithError(e);
-                        emitters.remove(emitter);
-                    }
+        synchronized (emitters) {
+            for (SseEmitter emitter : emitters) {
+                try {
+                    emitter.send(SseEmitter.event().name("알림").data(todoAlertDTOs));
+                } catch (IOException e) {
+                    log.error("Error sending SSE event", e);
+                    emitter.completeWithError(e);
+                    emitters.remove(emitter);
                 }
             }
         }
@@ -54,7 +51,7 @@ public class AlertService {
 
         return todos.stream().map(todo ->
                         TodoAlertDTO.builder()
-                                .id(todo.getId())
+                                .id(todo.getTodoId())
                                 .title(todo.getTitle())
                                 .content(todo.getContent())
                                 .username(todo.getUser().getUsername())
