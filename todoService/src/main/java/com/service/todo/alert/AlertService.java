@@ -61,6 +61,11 @@ public class AlertService {
 
     public SseEmitter createEmitter() {
         SseEmitter emitter = new SseEmitter();
+        try {
+            emitter.send(findTodosDueInNextHour());
+        } catch (IOException e) {
+            log.info("SseEmitter add false");
+        }
 
         synchronized (emitters) {
             emitters.add(emitter);
