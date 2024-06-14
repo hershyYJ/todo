@@ -35,14 +35,19 @@ class App extends React.Component {
   };
 
   delete = (todoId) => {
-    call(`/todo?todoId=${todoId}`, "DELETE", null).then((response) => {
-      console.log("DELETE response:", response);
-      this.setState({
-        items: this.state.items.filter((todo) => todo.todoId !== todoId),
+    const updatedItems = this.state.items.filter((todo) => todo.todoId !== todoId);
+    this.setState({ items: updatedItems });
+  
+    call(`/todo?todoId=${todoId}`, "DELETE", null)
+      .then((response) => {
+        console.log("DELETE response:", response);
+      })
+      .catch((error) => {
+        console.error("DELETE error:", error);
+        this.setState({ items: this.state.items });
       });
-    });
   };
-
+  
   update = (item) => {
     const todoModificationReq = {
       todoId: item.todoId,
