@@ -14,6 +14,7 @@ import {
 import "./App.css";
 import { call } from "./service/ApiService";
 import { signout } from "./service/ApiService";
+import Alert from "./Alert";
 
 class App extends React.Component {
   constructor(props) {
@@ -31,27 +32,27 @@ class App extends React.Component {
         items: [...this.state.items, response], // 새롭게 생성된 TodoDTO를 현재 상태의 items에 추가
       });
     });
-};
+  };
 
-delete = (todoId) => {
-  call(`/todo?todoId=${todoId}`, "DELETE", null).then((response) => {
-    console.log("DELETE response:", response); 
-    this.setState({
-      items: this.state.items.filter((todo) => todo.todoId !== todoId),
+  delete = (todoId) => {
+    call(`/todo?todoId=${todoId}`, "DELETE", null).then((response) => {
+      console.log("DELETE response:", response);
+      this.setState({
+        items: this.state.items.filter((todo) => todo.todoId !== todoId),
+      });
     });
-  });
-};
+  };
 
   update = (item) => {
     const todoModificationReq = {
       todoId: item.todoId,
       title: item.title,
-      content: item.content, 
+      content: item.content,
       done: item.done,
-      priority: item.priority, 
+      priority: item.priority,
       deadline: item.deadline,
     };
-  
+
     call("/todo", "PATCH", todoModificationReq).then((response) =>
       this.setState({ items: response })
     );
@@ -75,9 +76,8 @@ delete = (todoId) => {
 
   componentDidMount() {
     call("/todo", "GET", null).then((response) => {
-      console.log(response);
-      this.setState({ items: response, loading: false }, () => {
-      });
+      console.log("/todo GET: ", response);
+      this.setState({ items: response, loading: false }, () => {});
     });
     console.log("State updated:", this.state);
   }
@@ -85,40 +85,41 @@ delete = (todoId) => {
   render() {
     const { items, loading } = this.state;
 
-    const todoItems = (items && items.length > 0) ? (
-      <Paper style={{ margin: 16 }}>
-        <Button color="inherit" onClick={this.filterByPriority}>
-          우선순위별 정렬
-        </Button>
-        <Button color="inherit" onClick={this.filterByDeadline}>
-          마감 기한별 정렬
-        </Button>
-        <List>
-          {items.map((item, idx) => (
-            <Todo
-              item={item}
-              key={item.todoId}
-              deleteTodo={this.delete}
-              update={this.update}
-            />
-          ))}
-        </List>
-      </Paper>
-    ) : (
-      <Paper style={{ padding: 16, marginBottom: 16 }}>
-        <p>아직 등록된 Todo가 없습니다.</p>
-      </Paper>
-    );
+    const todoItems =
+      items && items.length > 0 ? (
+        <Paper style={{ margin: 16 }}>
+          <Button color="inherit" onClick={this.filterByPriority}>
+            우선순위별 정렬
+          </Button>
+          <Button color="inherit" onClick={this.filterByDeadline}>
+            마감 기한별 정렬
+          </Button>
+          <List>
+            {items.map((item, idx) => (
+              <Todo
+                item={item}
+                key={item.todoId}
+                deleteTodo={this.delete}
+                update={this.update}
+              />
+            ))}
+          </List>
+        </Paper>
+      ) : (
+        <Paper style={{ padding: 16, marginBottom: 16 }}>
+          <p>아직 등록된 Todo가 없습니다.</p>
+        </Paper>
+      );
 
     // navigationBar
     var navigationBar = (
       <AppBar position="static">
         <Toolbar>
-        <Grid container justifyContent="space-between">
-          <Grid item>
-            <Typography variant="h6">오늘의 할일</Typography>
+          <Grid container justifyContent="space-between">
+            <Grid item>
+              <Typography variant="h6">오늘의 할일</Typography>
+            </Grid>
           </Grid>
-        </Grid>
           <Grid item>
             <Button color="inherit" onClick={signout}>
               logout
@@ -132,6 +133,7 @@ delete = (todoId) => {
     var todoListPage = (
       <div>
         {navigationBar}
+        <Alert />
         <Container maxWidth="md">
           <AddTodo add={this.add} />
           <div className="TodoList">{todoItems}</div>

@@ -1,6 +1,5 @@
 package com.service.todo.dto;
 
-import com.service.todo.model.TodoEntity;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
